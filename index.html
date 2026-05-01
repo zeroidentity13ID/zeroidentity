@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>ZERO IDENTITY | ACCESO RESTRINGIDO</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Fondo de comandos 3D subiendo */
+        #terminal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(0deg, rgba(128, 0, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 30px;
+            animation: scroll 1.5s linear infinite;
+        }
+
+        @keyframes scroll {
+            from { transform: translateY(0); }
+            to { transform: translateY(-30px); }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Efecto de Humo 3D Triple */
+        .img-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .main-img {
+            width: 280px;
+            border-radius: 20px;
+            position: relative;
+            z-index: 5;
+            filter: drop-shadow(0 0 15px #8000ff);
+        }
+
+        .smoke {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110%;
+            height: 110%;
+            background: radial-gradient(circle, rgba(128, 0, 255, 0.4) 0%, transparent 70%);
+            filter: blur(20px);
+            animation: moveSmoke 3s infinite ease-in-out;
+            z-index: 2;
+        }
+
+        .smoke2 { animation-delay: 1s; opacity: 0.6; width: 120%; }
+        .smoke3 { animation-delay: 2s; opacity: 0.3; top: -40px; }
+
+        @keyframes moveSmoke {
+            0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+            50% { transform: translateX(-45%) translateY(-20px) scale(1.1); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #8000ff;
+            text-shadow: 0 0 10px #8000ff, 0 0 20px #000;
+            margin-top: 20px;
+            letter-spacing: 5px;
+        }
+
+        .btn-start {
+            background: transparent;
+            border: 2px solid #8000ff;
+            color: white;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px #8000ff;
+            transition: 0.4s;
+            margin-top: 30px;
+        }
+
+        .btn-start:hover {
+            background: #8000ff;
+            box-shadow: 0 0 40px #8000ff;
+            transform: scale(1.1);
+        }
+
+        /* Formulario Estilo Hacker */
+        #survey {
+            display: none;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid #8000ff;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: #111;
+            border: 1px solid #8000ff;
+            color: #0f0;
+            margin: 10px 0;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal-bg"></div>
+
+    <div class="container" id="home">
+        <div class="img-wrapper">
+            <div class="smoke smoke1"></div>
+            <div class="smoke smoke2"></div>
+            <div class="smoke smoke3"></div>
+            <img src="https://i.imgur.com/tu_foto_aqui.jpg" class="main-img">
+        </div>
+        <h1>BIENVENIDOS A ZERO IDENTITY</h1>
+        <button class="btn-start" onclick="startSystem()">INICIAR PROTOCOLO</button>
+    </div>
+
+    <div id="survey">
+        <h2 style="color:#8000ff">VERIFICACIÓN DE IDENTIDAD</h2>
+        <form id="clanForm">
+            <label>Correo Electrónico:</label>
+            <input type="email" id="email" required>
+            
+            <label>1. ¿Cómo supiste de nosotros?</label>
+            <select id="q1">
+                <option value="TikTok">TikTok</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Amigos">Amigos</option>
+            </select>
+
+            <label>2. ¿Por qué quieres entrar?</label>
+            <textarea id="q2" rows="2"></textarea>
+
+            <label>3. ¿Qué te llamó la atención?</label>
+            <textarea id="q3" rows="2"></textarea>
+
+            <label>4. Edad:</label>
+            <input type="number" id="q4">
+
+            <label>5. Fecha Cumpleaños:</label>
+            <input type="date" id="q5">
+
+            <label>6. ¿Serás responsable?</label>
+            <select id="q6"><option>Sí</option><option>No</option></select>
+
+            <label>7. Protocolo ante infiltración:</label>
+            <textarea id="q7"></textarea>
+
+            <label>8. ¿Harías observación secreta?</label>
+            <select id="q8"><option>Sí</option><option>No</option></select>
+
+            <label>9. Sanción máxima propuesta:</label>
+            <textarea id="q9"></textarea>
+
+            <button type="button" class="btn-start" onclick="sendData()">ENVIAR DATOS</button>
+        </form>
+    </div>
+
+    <script>
+        function startSystem() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('survey').style.display = 'block';
+        }
+
+        async function sendData() {
+            const webhook = "https://discord.com/api/webhooks/1499573231294615572/P5MkhcgsaQPbidfpWo6tFVXTABaJqIh0mo7JT2cwCDz0bBNuJJ6X7umtisJqDfeBvnje";
+            
+            const payload = {
+                embeds: [{
+                    title: "⚠️ NUEVO RECLUTA - ZERO IDENTITY",
+                    color: 8388863,
+                    fields: [
+                        {name: "📧 Correo", value: document.getElementById('email').value},
+                        {name: "🎂 Edad/Cumple", value: document.getElementById('q4').value + " | " + document.getElementById('q5').value},
+                        {name: "📱 Origen", value: document.getElementById('q1').value},
+                        {name: "📄 Motivo", value: document.getElementById('q2').value},
+                        {name: "🛡️ Protocolo Silencio", value: document.getElementById('q7').value}
+                    ]
+                }]
+            };
+
+            await fetch(webhook, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            document.body.innerHTML = "<h1 style='color:red; text-align:center; padding-top:100px;'>CIFRANDO RESPUESTAS... ESTA SESIÓN SE CERRARÁ EN 5 SEGUNDOS.</h1>";
+            setTimeout(() => { window.location.href = "about:blank"; }, 5000);
+        }
+    </script>
+</body>
+</html>
